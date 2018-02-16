@@ -3,9 +3,9 @@ package com.example.ernesto.swapi;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.ListFragment;
+import android.app.ListFragment;
 import android.util.Log;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 
 import org.json.JSONArray;
@@ -22,11 +23,9 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 
-/**
- * A simple {@link Fragment} subclass.
- */
 public class StarwarsListFragment extends ListFragment {
 
+    private RequestQueue mQueue;
 
     public StarwarsListFragment() {
         // Required empty public constructor
@@ -37,6 +36,7 @@ public class StarwarsListFragment extends ListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        mQueue = VolleySingleton.getInstance(getContext()).getRequestQueue();
         return inflater.inflate(R.layout.fragment_starwars_list, container, false);
     }
 
@@ -50,9 +50,10 @@ public class StarwarsListFragment extends ListFragment {
                     public void onResponse(JSONObject response) {
                         try {
 
-                            JSONObject data = response.getJSONObject("data");
-                            JSONArray jsonArray = data.getJSONArray("results");
+                            //JSONObject data = response.getJSONObject("data");
+                            //JSONArray jsonArray = data.getJSONArray("results");
 
+                            JSONArray jsonArray = response.getJSONArray("results");
                             for(int i = 0; i < jsonArray.length(); i++) {
 
                                 JSONObject jsonObject = jsonArray.getJSONObject(i);
@@ -78,6 +79,7 @@ public class StarwarsListFragment extends ListFragment {
 
                     }
                 });
+        mQueue.add(request);
 
         return adapter;
     }
