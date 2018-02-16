@@ -40,9 +40,58 @@ public class StarwarsListFragment extends ListFragment {
         return inflater.inflate(R.layout.fragment_starwars_list, container, false);
     }
 
+    private void makeRequest(final StarwarsAdapter adapter, String url) {
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
+                // success
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+
+                            //JSONObject data = response.getJSONObject("data");
+                            //JSONArray jsonArray = data.getJSONArray("results");
+
+                            JSONArray jsonArray = response.getJSONArray("results");
+                            for(int i = 0; i < jsonArray.length(); i++) {
+
+                                JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+                                Character character = new Character();
+                                character.name = jsonObject.getString("name");
+                                character.birthYear = jsonObject.getString("birth_year");
+
+                                adapter.add(character);
+                            }
+                            adapter.notifyDataSetChanged();
+
+                        } catch (JSONException e){
+                            e.printStackTrace();
+                        }
+
+                    }
+                },
+                // error
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+                });
+        mQueue.add(request);
+    }
+
     private StarwarsAdapter getAdapter() {
         final StarwarsAdapter adapter = new StarwarsAdapter(getActivity(), R.layout.starwars_character_layout, new ArrayList<Character>());
 
+        for(int i =0; i<10; i++) {
+            StringBuffer sb = new StringBuffer();
+            sb.append("https://swapi.co/api/people/?page=");
+            sb.append(i+"");
+            sb.append("&format=json");
+            makeRequest(adapter, sb.toString());
+        }
+
+        /*
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, "https://swapi.co/api/people/?page=1&format=json", null,
                 // success
                 new Response.Listener<JSONObject>() {
@@ -80,6 +129,7 @@ public class StarwarsListFragment extends ListFragment {
                     }
                 });
         mQueue.add(request);
+        */
 
         return adapter;
     }
